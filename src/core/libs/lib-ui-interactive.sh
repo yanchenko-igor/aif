@@ -755,7 +755,7 @@ If any previous configuration you've done until now (like fancy filesystems) req
 	check_is_in $bootloader "${supported_bootloaders[@]}" && needed_pkgs+=("$bootloader")
 	# grub-bios needs some packages from extra
 	if [[ $bootloader = grub-bios ]]; then
-		add_pacman_repo runtime extra "$var_MIRRORLIST"
+		add_pacman_repo target extra "$var_MIRRORLIST"
 	fi
 
 	ask_checklist "Select Package groups\nDo not deselect base unless you know what you're doing!" 0 "${grouplist[@]}" || return 1
