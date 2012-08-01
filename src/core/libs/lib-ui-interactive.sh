@@ -732,8 +732,8 @@ interactive_select_bootloader() {
 	check_is_in $bootloader "${supported_bootloaders[@]}" && needed_pkgs+=("$bootloader")
 
 	# grub-bios needs some packages from extra
-	if [[ $bootloader = grub-bios ]]; then
-		add_pacman_repo target extra "$var_MIRRORLIST"
+	if [ $bootloader == 'grub-bios' ] && ! echo $TARGET_REPOSITORIES | grep -q extra; then
+		TARGET_REPOSITORIES+=(extra $var_MIRRORLIST)
 	fi
 }
 
