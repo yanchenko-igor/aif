@@ -753,6 +753,10 @@ If any previous configuration you've done until now (like fancy filesystems) req
 
 	# Make sure selected bootloader is a supported_bootloader and mark bootloader for installation
 	check_is_in $bootloader "${supported_bootloaders[@]}" && needed_pkgs+=("$bootloader")
+	# grub-bios needs some packages from extra
+	if [[ $bootloader = grub-bios ]]; then
+		add_pacman_repo runtime extra "$var_MIRRORLIST"
+	fi
 
 	ask_checklist "Select Package groups\nDo not deselect base unless you know what you're doing!" 0 "${grouplist[@]}" || return 1
 	grouplist=("${ANSWER_CHECKLIST[@]}")
@@ -1107,14 +1111,14 @@ interactive_select_source() {
 	shopt -u nullglob
 	list=()
 	for repo in "${repos_onboard[@]##*/}"; do
-		if [$repo == 'core' -o \( $repo == 'extra' -a $bootloader == 'grub-bios' \) ]; then
+		if [ $repo == 'core' ]; then
 			list+=($repo-local "$repo mounted in install medium" ON)
 		else
 			list+=($repo-local "$repo mounted in install medium" OFF)
 		fi
 	done
 	for repo in $(list_possible_repos); do
-		if [ \( $repo == 'core' -o $repo == 'extra' \) -a ! -d /repo/$repo ]; then
+		if [ $repo == 'core' -a ! -d /repo/core ]; then
 			list+=($repo-remote "$repo on remote mirror" ON)
 		else
 			list+=($repo-remote "$repo on remote mirror" OFF)
@@ -1155,6 +1159,7 @@ interactive_select_source() {
 			TARGET_REPOSITORIES+=($repo $var_MIRRORLIST)
 		fi
 	done
+
 	return 0
 }
 
