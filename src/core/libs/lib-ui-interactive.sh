@@ -1107,14 +1107,14 @@ interactive_select_source() {
 	shopt -u nullglob
 	list=()
 	for repo in "${repos_onboard[@]##*/}"; do
-		if [$repo == 'core' -o ( $repo == 'extra' -a $bootloader == 'grub-bios' ) ]; then
+		if [$repo == 'core' -o \( $repo == 'extra' -a $bootloader == 'grub-bios' \) ]; then
 			list+=($repo-local "$repo mounted in install medium" ON)
 		else
 			list+=($repo-local "$repo mounted in install medium" OFF)
 		fi
 	done
 	for repo in $(list_possible_repos); do
-		if [ ( $repo == 'core' -o $repo == 'extra' ) -a ! -d /repo/$repo ]; then
+		if [ \( $repo == 'core' -o $repo == 'extra' \) -a ! -d /repo/$repo ]; then
 			list+=($repo-remote "$repo on remote mirror" ON)
 		else
 			list+=($repo-remote "$repo on remote mirror" OFF)
