@@ -1155,6 +1155,12 @@ interactive_select_source() {
 			TARGET_REPOSITORIES+=($repo $var_MIRRORLIST)
 		fi
 	done
+
+	# grub-bios depends on fuse, which is in extra
+	if [ $bootloader == 'grub-bios' ] && ! check_is_in "extra-remote" "${repos[@]}"; then
+		TARGET_REPOSITORIES+=('extra' $var_MIRRORLIST)
+	fi
+
 	return 0
 }
 
