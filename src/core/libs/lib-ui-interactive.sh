@@ -746,7 +746,8 @@ If any previous configuration you've done until now (like fancy filesystems) req
 	done
 
 	ask_option no "Choose bootloader" "Which bootloader would you like to use?" optional \
-	"syslinux" "Syslinux bootloader (${syslinux_supported_fs[*]})"
+	"syslinux" "Syslinux bootloader (${syslinux_supported_fs[*]})" \
+	"grub-bios" "GRUB bootloader (bios)"
 
 	bootloader=$ANSWER_OPTION
 
