@@ -1017,10 +1017,10 @@ interactive_grubbios() {
 	get_device_with_mount '/'
 	bootdev=$(echo $ANSWER_DEVICE | sed 's/[0-9]//g')
 
-	modprobe dm-mod || die_error "Could not load dm-mod kernel module."
-
 	debug 'FS' "installing grub-bios to $bootdev"
+
 	target_special_fs on
+	modprobe dm-mod || die_error "Could not load dm-mod kernel module."
 	chroot "$var_TARGET_DIR" grub-install --recheck "$bootdev" || return 1
 	target_special_fs off
 
