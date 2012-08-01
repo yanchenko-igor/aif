@@ -3,6 +3,7 @@
 
 # Global Variables
 # Be sure to override these if you have the configuration file elsewhere
+grubbiosmenu="/boot/grub/grub.cfg"
 syslinuxmenu="/boot/syslinux/syslinux.cfg"
 
 # check if a worker has completed successfully. if not -> tell user he must do it + return 1
@@ -178,7 +179,7 @@ interactive_time () {
 				dohwclock $HARDWARECLOCK systohc && default=3 || return $?
 				timeset=1
 			else
-				show_warning "Date/time setting failed" "Something went wrong when doing date -s $ANSWER_DATETIME" 
+				show_warning "Date/time setting failed" "Something went wrong when doing date -s $ANSWER_DATETIME"
 				timeset=0
 			fi
 		fi
@@ -640,7 +641,7 @@ device type label size type create? mountpoint options label params" required "$
 					if [ "$ANSWER_OPTION" = empty  ]
 					then
 						# a new LV must be created on this VG
-						if interactive_filesystem $part $part_type $part_label '' 
+						if interactive_filesystem $part $part_type $part_label ''
 						then
 							if [ "$NEW_FILESYSTEM" != no_fs ]
 							then
@@ -868,15 +869,15 @@ interactive_runtime_network() {
 	fi
 
 	echo "INTERFACE_PREV=$INTERFACE_PREV
-          INTERFACE=$INTERFACE
-          DHCP=$DHCP
-          IPADDR=$IPADDR
-          SUBNET=$SUBNET
-          BROADCAST=$BROADCAST
-          GW=$GW
-          DNS=$DNS
-          PROXY_HTTP=$PROXY_HTTP
-          PROXY_FTP=$PROXY_FTP" > $RUNTIME_DIR/aif-network-settings || return 1
+	  INTERFACE=$INTERFACE
+	  DHCP=$DHCP
+	  IPADDR=$IPADDR
+	  SUBNET=$SUBNET
+	  BROADCAST=$BROADCAST
+	  GW=$GW
+	  DNS=$DNS
+	  PROXY_HTTP=$PROXY_HTTP
+	  PROXY_FTP=$PROXY_FTP" > $RUNTIME_DIR/aif-network-settings || return 1
 	notify "The network is configured."
 	return 0
 }
@@ -885,6 +886,8 @@ interactive_runtime_network() {
 interactive_install_bootloader () {
 	if [[ $bootloader = syslinux ]]; then
 		interactive_syslinux || return 1
+	elif [[ $bootloader = grub-bios ]]; then
+		interactive_grubbios || return 1
 	else
 		show_warning 'No Bootloader' 'You did not select a bootloader. No bootloader will be installed.'
 	fi
@@ -998,11 +1001,34 @@ LABEL off
 EOF
 }
 
+interactive_grubbios() {
+	debug 'FS' 'starting interactive_grubbios'
+
+	get_device_with_mount '/boot'
+	bootdev="$ANSWER_DEVICE"
+
+	modprobe dm-mod || die_error "Could not load dm-mod kernel module."
+
+	debug 'FS' "installing grub-bios to $bootdev"
+	grub-install --target=i386-pc --recheck --debug "$bootdev" || return 1
+
+	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
+	cp "$var_TARGET_DIR/usr/share/locale/en/LC_MESSAGES/grub.mo" \
+		/boot/grub/locale/en.mo
+}
+
+generate_grubbios_menu() {
+	grub-mkconfig -o "$var_TARGET_DIR/$grubbiosmenu"
+}
+
+
 # $1 - Bootloader Name
 # $2 - Bootloader Configuration Files
 interactive_bootloader_menu() {
 	if [[ $1 = syslinux ]]; then
 		generate_syslinux_menu || return
+	elif [[ $1 = grubbios ]]; then
+		generate_grubbios_menu || return
 	fi
 
 	ls -1 /sys/block | grep -q ^dm- && local helptext="  /dev/mapper/ users: Pay attention to the kernel line!"
@@ -1030,7 +1056,7 @@ get_kernel_parameters() {
 
 	kernel_parameters="root=$rootpart ro"
 
-	local raw_device crypt_device lv_device 
+	local raw_device crypt_device lv_device
 
 	if get_anchestors_mount ';/;'; then
 		if echo "$ANSWER_DEVICES" | sed -n '1p' | grep -q 'dm_crypt$' && echo "$ANSWER_DEVICES" | sed -n '2p' | grep -q 'raw$'
@@ -1135,7 +1161,7 @@ interactive_select_source() {
 # Prompt user for preferred mirror and set $MIRROR
 # args: none
 # returns: nothing
-interactive_select_mirror() { 
+interactive_select_mirror() {
 	notify "Keep in mind ftp.archlinux.org is throttled.\nPlease select another mirror to get full download speed."
 	# FIXME: this regex doesn't honor commenting
 	MIRRORS=$(egrep -o '((ftp)|(http))://[^/]*' "${var_MIRRORLIST}" | sed 's|$| _|g')
