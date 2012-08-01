@@ -1020,7 +1020,9 @@ interactive_grubbios() {
 	modprobe dm-mod || die_error "Could not load dm-mod kernel module."
 
 	debug 'FS' "installing grub-bios to $bootdev"
+	target_special_fs on
 	chroot "$var_TARGET_DIR" grub-install --target=i386-pc --recheck "$bootdev" || return 1
+	target_special_fs off
 
 	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
 	cp "$var_TARGET_DIR/usr/share/locale/en/LC_MESSAGES/grub.mo" \
