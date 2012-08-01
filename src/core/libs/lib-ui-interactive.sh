@@ -1020,8 +1020,7 @@ interactive_grubbios() {
 	debug 'FS' "installing grub-bios to $bootdev"
 
 	target_special_fs on
-	modprobe dm-mod || die_error "Could not load dm-mod kernel module."
-	chroot "$var_TARGET_DIR" grub-install --recheck "$bootdev" || return 1
+	chroot "$var_TARGET_DIR" grub-install "$bootdev" || return 1
 	target_special_fs off
 
 	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
