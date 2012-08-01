@@ -1015,7 +1015,7 @@ interactive_grubbios() {
 	debug 'FS' 'starting interactive_grubbios'
 
 	get_device_with_mount '/'
-	bootdev="$ANSWER_DEVICE"
+	bootdev=$(echo $ANSWER_DEVICE | sed 's/\d//g')
 
 	modprobe dm-mod || die_error "Could not load dm-mod kernel module."
 
