@@ -721,6 +721,21 @@ device type label size type create? mountpoint options label params" required "$
 	return 1
 }
 
+interactive_select_bootloader() {
+	ask_option no "Choose bootloader" "Which bootloader would you like to use?" optional \
+		"syslinux" "Syslinux bootloader (${syslinux_supported_fs[*]})" \
+		"grub-bios" "GRUB bootloader (bios)"
+
+	bootloader=$ANSWER_OPTION
+
+	# Make sure selected bootloader is a supported_bootloader and mark bootloader for installation
+	check_is_in $bootloader "${supported_bootloaders[@]}" && needed_pkgs+=("$bootloader")
+
+	# grub-bios needs some packages from extra
+	if [[ $bootloader = grub-bios ]]; then
+		add_pacman_repo target extra "$var_MIRRORLIST"
+	fi
+}
 
 # select_packages()
 # prompts the user to select packages to install
@@ -730,14 +745,16 @@ device type label size type create? mountpoint options label params" required "$
 interactive_select_packages() {
 	local needed_pkgs=()
 
-	# set up our install location if necessary and sync up so we can get package lists
-	target_prepare_pacman || { show_warning 'Pacman preparation failure' "Pacman preparation failed! Check $LOG for errors."; return 1; }
-
 	repos=`list_pacman_repos target`
 	notify "Package selection is split into three stages. First, you will select a bootloader. Then, you will select package groups that contain packages that you may be interested in. Lastly, you will be presented with a full list of packages for each group, allowing you to fine-tune.\n\n
 Note that packages (and groups) selection are limited to the repos you enabled earlier ($repos)\n
 Once you have your Arch system up and running, you have access to more repositories and packages.\n\n
 If any previous configuration you've done until now (like fancy filesystems) require extra packages, we've already preselected them for your convenience"
+
+	interactive_select_bootloader || return 1
+
+	# set up our install location if necessary and sync up so we can get package lists
+	target_prepare_pacman || { show_warning 'Pacman preparation failure' "Pacman preparation failed! Check $LOG for errors."; return 1; }
 
 	# show group listing for group selection, base is ON by default, all others are OFF
 	local grouplist=(base ^ ON)
@@ -745,18 +762,6 @@ If any previous configuration you've done until now (like fancy filesystems) req
 		grouplist+=(${i} - OFF)
 	done
 
-	ask_option no "Choose bootloader" "Which bootloader would you like to use?" optional \
-	"syslinux" "Syslinux bootloader (${syslinux_supported_fs[*]})" \
-	"grub-bios" "GRUB bootloader (bios)"
-
-	bootloader=$ANSWER_OPTION
-
-	# Make sure selected bootloader is a supported_bootloader and mark bootloader for installation
-	check_is_in $bootloader "${supported_bootloaders[@]}" && needed_pkgs+=("$bootloader")
-	# grub-bios needs some packages from extra
-	if [[ $bootloader = grub-bios ]]; then
-		add_pacman_repo target extra "$var_MIRRORLIST"
-	fi
 
 	ask_checklist "Select Package groups\nDo not deselect base unless you know what you're doing!" 0 "${grouplist[@]}" || return 1
 	grouplist=("${ANSWER_CHECKLIST[@]}")
