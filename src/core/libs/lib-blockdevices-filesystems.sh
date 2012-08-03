@@ -102,8 +102,8 @@ supported_bootloaders=('syslinux' 'grub-bios')
 # NOTE: why were the functions in the setup called CHROOT_mount/umount? this is not chrooting ? ASKDEV
 target_special_fs ()
 {
-	[ "$1" = on -o "$1" = off ] || die_error "special_fs needs on/off argument"
-	if [ "$1" = on ]
+	[ "$1" == on -o "$1" == off ] || die_error "special_fs needs on/off argument"
+	if [ "$1" == on ]
 	then
 		# mount proc/sysfs first, so mkinitrd can use auto-detection if it wants
 		! [ -d $var_TARGET_DIR/proc ] && mkdir $var_TARGET_DIR/proc
@@ -113,7 +113,7 @@ target_special_fs ()
 		mount | grep -q "$var_TARGET_DIR/proc" || (debug 'FS' 'mounting proc' && mount -t proc  proc $var_TARGET_DIR/proc) || die_error "Could not mount $var_TARGET_DIR/proc"
 		mount | grep -q "$var_TARGET_DIR/sys"  || (debug 'FS' 'mounting sys' && mount -t sysfs sysfs $var_TARGET_DIR/sys) || die_error "Could not mount $var_TARGET_DIR/sys"
 		mount | grep -q "$var_TARGET_DIR/dev"  || (debug 'FS' 'mounting dev' && mount -o bind  /dev $var_TARGET_DIR/dev)  || die_error "Could not mount $var_TARGET_DIR/dev"
-	elif [ "$1" = off ]
+	elif [ "$1" == off ]
 	then
 		umount $var_TARGET_DIR/proc || die_error "Could not umount $var_TARGET_DIR/proc"
 		umount $var_TARGET_DIR/sys  || die_error "Could not umount $var_TARGET_DIR/sys"
