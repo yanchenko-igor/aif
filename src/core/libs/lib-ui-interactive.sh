@@ -1035,7 +1035,7 @@ interactive_grubbios() {
 	#target_special_fs off
 
 	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
-	cp "$var_TARGET_DIR/usr/share/locale/en\@quot/LC_MESSAGES/grub.mo" "$var_TARGET_DIR/boot/grub/locale/en.mo"
+	cp "$var_TARGET_DIR/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "$var_TARGET_DIR/boot/grub/locale/en.mo"
 }
 
 generate_grubbios_menu() {
