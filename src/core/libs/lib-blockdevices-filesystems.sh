@@ -115,9 +115,9 @@ target_special_fs ()
 		mount | grep -q "$var_TARGET_DIR/dev"  || (debug 'FS' 'mounting dev' && mount -o bind  /dev $var_TARGET_DIR/dev)  || die_error "Could not mount $var_TARGET_DIR/dev"
 	elif [ "$1" == off ]
 	then
-		umount $var_TARGET_DIR/proc || die_error "Could not umount $var_TARGET_DIR/proc"
-		umount $var_TARGET_DIR/sys  || die_error "Could not umount $var_TARGET_DIR/sys"
-		umount $var_TARGET_DIR/dev  || die_error "Could not umount $var_TARGET_DIR/dev"
+		(debug 'FS' 'unmounting proc' && umount $var_TARGET_DIR/proc) || die_error "Could not umount $var_TARGET_DIR/proc"
+		(debug 'FS' 'unmounting sysfs' && umount $var_TARGET_DIR/sys)  || die_error "Could not umount $var_TARGET_DIR/sys"
+		(debug 'FS' 'unmounting dev' && umount $var_TARGET_DIR/dev)  || die_error "Could not umount $var_TARGET_DIR/dev"
 	fi
 }
 
