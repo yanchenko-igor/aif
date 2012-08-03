@@ -110,9 +110,9 @@ target_special_fs ()
 		! [ -d $var_TARGET_DIR/sys  ] && mkdir $var_TARGET_DIR/sys
 		! [ -d $var_TARGET_DIR/dev  ] && mkdir $var_TARGET_DIR/dev
 		#mount, if not mounted yet
-		mount | grep -q "$var_TARGET_DIR/proc" || mount -t proc  proc $var_TARGET_DIR/proc || die_error "Could not mount $var_TARGET_DIR/proc"
-		mount | grep -q "$var_TARGET_DIR/sys"  || mount -t sysfs sysfs $var_TARGET_DIR/sys || die_error "Could not mount $var_TARGET_DIR/sys"
-		mount | grep -q "$var_TARGET_DIR/dev"  || mount -o bind  /dev $var_TARGET_DIR/dev  || die_error "Could not mount $var_TARGET_DIR/dev"
+		mount | grep -q "$var_TARGET_DIR/proc" || (debug 'FS' 'mounting proc' && mount -t proc  proc $var_TARGET_DIR/proc) || die_error "Could not mount $var_TARGET_DIR/proc"
+		mount | grep -q "$var_TARGET_DIR/sys"  || (debug 'FS' 'mounting sys' && mount -t sysfs sysfs $var_TARGET_DIR/sys) || die_error "Could not mount $var_TARGET_DIR/sys"
+		mount | grep -q "$var_TARGET_DIR/dev"  || (debug 'FS' 'mounting dev' && mount -o bind  /dev $var_TARGET_DIR/dev)  || die_error "Could not mount $var_TARGET_DIR/dev"
 	elif [ "$1" = off ]
 	then
 		umount $var_TARGET_DIR/proc || die_error "Could not umount $var_TARGET_DIR/proc"
