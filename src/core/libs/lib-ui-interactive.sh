@@ -897,7 +897,7 @@ interactive_install_bootloader () {
 	if [[ $bootloader = syslinux ]]; then
 		interactive_syslinux || return 1
 	elif [[ $bootloader = grub-bios ]]; then
-		interactive_grubbios || return 1
+		interactive_grubbios || die_error "grub-bios install failed!"
 	else
 		show_warning 'No Bootloader' 'You did not select a bootloader. No bootloader will be installed.'
 	fi
@@ -1021,8 +1021,11 @@ interactive_grubbios() {
 
 	#target_special_fs on
 	#debug 'FS' "chroot $var_TARGET_DIR grub-install $bootdev"
+	debug 'FS' "mount -vt proc proc $var_TARGET_DIR/proc"
 	mount -vt proc proc "$var_TARGET_DIR/proc"
+	debug 'FS' "mount -vt sysfs sysfs $var_TARGET_DIR/sys"
 	mount -vt sysfs sysfs "$var_TARGET_DIR/sys"
+	debug 'FS' "mount -vo bind /dev $var_TARGET_DIR/dev"
 	mount -vo bind /dev "$var_TARGET_DIR/dev"
 	chroot "$var_TARGET_DIR" grub-install "$bootdev" || die_error "Could not run chroot $var_TARGET_DIR grub-install $bootdev"
 	umount -v "$var_TARGET_DIR/proc"
@@ -1032,8 +1035,7 @@ interactive_grubbios() {
 	#target_special_fs off
 
 	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
-	cp "$var_TARGET_DIR/usr/share/locale/en/LC_MESSAGES/grub.mo" \
-		/boot/grub/locale/en.mo
+	cp "$var_TARGET_DIR/usr/share/locale/en/LC_MESSAGES/grub.mo" "var_TARGET_DIR/boot/grub/locale/en.mo"
 }
 
 generate_grubbios_menu() {
