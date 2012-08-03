@@ -1020,6 +1020,7 @@ interactive_grubbios() {
 	debug 'FS' "installing grub-bios to $bootdev"
 
 	target_special_fs on
+	debug 'FS' "chroot $var_TARGET_DIR grub-install $bootdev"
 	chroot "$var_TARGET_DIR" grub-install "$bootdev" || return 1
 	target_special_fs off
 
