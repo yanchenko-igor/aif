@@ -1028,14 +1028,17 @@ interactive_grubbios() {
 	debug 'FS' "mount -vo bind /dev $var_TARGET_DIR/dev"
 	mount -vo bind /dev "$var_TARGET_DIR/dev"
 	chroot "$var_TARGET_DIR" grub-install "$bootdev" || die_error "Could not run chroot $var_TARGET_DIR grub-install $bootdev"
+
+	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
+	cp "$var_TARGET_DIR/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "$var_TARGET_DIR/boot/grub/locale/en.mo"
+
+	chroot "$var_TARGET_DIR" grub-mkconfig -o /boot/grub/grub.cfg
 	umount -v "$var_TARGET_DIR/proc"
 	umount -v "$var_TARGET_DIR/sys"
 	umount -v "$var_TARGET_DIR/dev"
 
 	#target_special_fs off
 
-	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
-	cp "$var_TARGET_DIR/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "$var_TARGET_DIR/boot/grub/locale/en.mo"
 }
 
 generate_grubbios_menu() {
