@@ -1019,30 +1019,22 @@ interactive_grubbios() {
 
 	debug 'FS' "installing grub-bios to $bootdev"
 
-	#target_special_fs on
-	#debug 'FS' "chroot $var_TARGET_DIR grub-install $bootdev"
-	debug 'FS' "mount -vt proc proc $var_TARGET_DIR/proc"
-	mount -vt proc proc "$var_TARGET_DIR/proc"
-	debug 'FS' "mount -vt sysfs sysfs $var_TARGET_DIR/sys"
-	mount -vt sysfs sysfs "$var_TARGET_DIR/sys"
-	debug 'FS' "mount -vo bind /dev $var_TARGET_DIR/dev"
-	mount -vo bind /dev "$var_TARGET_DIR/dev"
-	chroot "$var_TARGET_DIR" grub-install "$bootdev" || die_error "Could not run chroot $var_TARGET_DIR grub-install $bootdev"
+	target_special_fs on
 
+	chroot "$var_TARGET_DIR" grub-install "$bootdev" || die_error "Could not run chroot $var_TARGET_DIR grub-install $bootdev"
 	mkdir -p "$var_TARGET_DIR/boot/grub/locale"
 	cp "$var_TARGET_DIR/usr/share/locale/en@quot/LC_MESSAGES/grub.mo" "$var_TARGET_DIR/boot/grub/locale/en.mo"
 
-	chroot "$var_TARGET_DIR" grub-mkconfig -o /boot/grub/grub.cfg
-	umount -v "$var_TARGET_DIR/proc"
-	umount -v "$var_TARGET_DIR/sys"
-	umount -v "$var_TARGET_DIR/dev"
+	target_special_fs off
 
-	#target_special_fs off
+	interactive_bootloader_menu "grubbios" "$grubbiosmenu"
 
 }
 
 generate_grubbios_menu() {
-	grub-mkconfig -o "$var_TARGET_DIR/$grubbiosmenu"
+	target_special_fs on
+	chroot "$var_TARGET_DIR" grub-mkconfig -o "$grubbiosmenu"
+	target_special_fs off
 }
 
 
