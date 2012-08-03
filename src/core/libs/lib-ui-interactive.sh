@@ -1030,7 +1030,7 @@ interactive_grubbios() {
 	chroot "$var_TARGET_DIR" grub-install "$bootdev" || die_error "Could not run chroot $var_TARGET_DIR grub-install $bootdev"
 	umount -v "$var_TARGET_DIR/proc"
 	umount -v "$var_TARGET_DIR/sys"
-	umount -v "var_TARGET_DIR/dev"
+	umount -v "$var_TARGET_DIR/dev"
 
 	#target_special_fs off
 
